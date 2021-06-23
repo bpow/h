@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hyp-mq
+  labels:
+    app: hyp-mq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hyp-mq
+  template:
+    metadata:
+      labels:
+        app: hyp-mq
+    spec:
+      containers:
+      - name: hyp-mq
+        image: rabbitmq:3.8.16-management-alpine
+        resources:
+          requests:
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: rabbit
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: hyp-secrets
+              key: rabbitmq_default_pass
+        ports:
+        - containerPort: 5672
+          name: data
+        - containerPort: 15672
+          name: manage
+        resources: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hyp-mq
+spec:
+  selector:
+    app: hyp-mq
+  ports:
+    - protocol: TCP
+      port: 5672
+      name: data
+    - protocol: TCP
+      port: 15672
+      name: manage
