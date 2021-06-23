@@ -1,0 +1,69 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: hyp-db
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: snap
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hyp-db
+  labels:
+    app: hyp-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hyp-db
+  template:
+    metadata:
+      labels:
+        app: hyp-db
+    spec:
+      containers:
+      - name: hyp-db
+        image: postgres:13.3-alpine
+        volumeMounts:
+        - mountPath: /opt/hyp-db
+          name: hyp-db
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+          initialDelaySeconds: 60
+          periodSeconds: 60
+        ports:
+        - containerPort: 5432
+          name: postgres-data
+        resources: {}
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: hyp-secrets
+              key: postgres_password
+        - name: PGDATA
+          value: /opt/hyp-db/data
+      volumes:
+      - name: hyp-db
+        persistentVolumeClaim:
+          claimName: hyp-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hyp-db
+spec:
+  selector:
+    app: hyp-db
+  ports:
+    - protocol: TCP
+      port: 5432

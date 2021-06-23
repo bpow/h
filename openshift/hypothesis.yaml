@@ -1,0 +1,101 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: hypothesis
+spec:
+  lookupPolicy:
+    local: false
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: nginx
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: snap
+---
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: hypothesis
+  labels:
+    build: hypothesis
+spec:
+  runPolicy: Serial
+  source:
+    type: Git
+    git:
+      uri: https://github.com/bpow/h.git
+      ref: openshift
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: hypothesis:latest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hypothesis
+  labels:
+    app: hypothesis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hypothesis
+  template:
+    metadata:
+      labels:
+        app: hypothesis
+    spec:
+      containers:
+      - name: hypothesis
+        image: image-registry.openshift-image-registry.svc:5000/bcpowell/hypothesis:latest
+        volumeMounts:
+        - mountPath: /var/lib/nginx
+          name: nginx
+        ports:
+        - containerPort: 5000
+          name: http
+        env:
+        - name: APP_URL
+          value: http://localhost:5000
+        - name: AUTHORITY
+          value: localhost
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: hyp-secrets
+              key: rabbitmq_default_pass
+        - name: BROKER_URL
+          value: amqp://rabbit:$(RABBITMQ_DEFAULT_PASS)@hyp-mq:$(HYP_MQ_SERVICE_PORT)/
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: hyp-secrets
+              key: postgres_password
+        - name: DATABASE_URL
+          value: postgresql://postgres:$(PGPASSWORD)@hyp-db/postgres
+        - name: ELASTICSEARCH_URL
+          value: http://hyp-es:9200
+        - name: NEW_RELIC_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: hyp-secrets
+              key: new_relic_license_key
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: hyp-secrets
+              key: secret_key
+      volumes:
+      - name: nginx
+        claimName: nginx
