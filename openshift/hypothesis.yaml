@@ -59,9 +59,11 @@ spec:
       containers:
       - name: hypothesis
         image: image-registry.openshift-image-registry.svc:5000/bcpowell/hypothesis:latest
-        volumeMounts:
-        - mountPath: /var/lib/nginx
-          name: nginx
+        resources:
+          requests:
+            memory: 512Mi
+          limits:
+            memory: 1Gi
         ports:
         - containerPort: 5000
           name: http

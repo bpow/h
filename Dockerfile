@@ -24,12 +24,13 @@ RUN apk add --no-cache \
     nginx \
     git
 
-# Create the hypothesis user, group, home directory and package directory.
-RUN addgroup -S hypothesis && adduser -S -G hypothesis -h /var/lib/hypothesis hypothesis
+# Create the hypothesis user, home directory and package directory.
+RUN adduser -S -G root -h /var/lib/hypothesis hypothesis
 WORKDIR /var/lib/hypothesis
 
 # Ensure nginx state and log directories writeable by unprivileged user.
-RUN chown -R hypothesis:hypothesis /var/log/nginx /var/lib/nginx
+RUN chown -R hypothesis:root /var/log/nginx /var/lib/nginx \
+  && chmod -R g+rwx /var/log/nginx /var/lib/nginx
 
 # Copy nginx config
 COPY conf/nginx.conf /etc/nginx/nginx.conf
@@ -53,7 +54,8 @@ COPY --from=build /tmp/frontend-build/build build
 COPY . .
 
 # If we're building from a git clone, ensure that .git is writeable
-RUN [ -d .git ] && chown -R hypothesis:hypothesis .git || :
+RUN [ -d .git ] && chown -R hypothesis:root .git || :
+RUN chmod -R g+rwx /var/lib/hypothesis
 
 # Expose the default port.
 EXPOSE 5000

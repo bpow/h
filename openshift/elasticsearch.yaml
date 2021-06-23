@@ -75,14 +75,14 @@ spec:
           name: http
         resources:
           requests:
-            memory: 512Mi
+            memory: 256Mi
           limits:
-            memory: 1Gi
+            memory: 512Mi
         env:
         - name: discovery.type
           value: single-node
         - name: ES_JAVA_OPTS
-          value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xmx256m -Xms256m
+          value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xmx200m -Xms200m
       volumes:
       - name: hyp-es
         claimName: hyp-es
