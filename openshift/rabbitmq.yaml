@@ -29,7 +29,14 @@ spec:
           valueFrom:
             secretKeyRef:
               name: hyp-secrets
-              key: rabbitmq_default_pass
+              key: RABBITMQ_DEFAULT_PASS
+        livenessProbe:
+          exec:
+            command:
+            - rabbitmqctl
+            - node_health_check
+          initialDelaySeconds: 60
+          periodSeconds: 120
         ports:
         - containerPort: 5672
           name: data

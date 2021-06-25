@@ -67,37 +67,20 @@ spec:
         ports:
         - containerPort: 5000
           name: http
+        envFrom:
+        - secretRef:
+            name: hyp-secrets
         env:
         - name: APP_URL
           value: http://localhost:5000
         - name: AUTHORITY
           value: localhost
-        - name: RABBITMQ_DEFAULT_PASS
-          valueFrom:
-            secretKeyRef:
-              name: hyp-secrets
-              key: rabbitmq_default_pass
         - name: BROKER_URL
           value: amqp://rabbit:$(RABBITMQ_DEFAULT_PASS)@hyp-mq:$(HYP_MQ_SERVICE_PORT)/
-        - name: PGPASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: hyp-secrets
-              key: postgres_password
         - name: DATABASE_URL
-          value: postgresql://postgres:$(PGPASSWORD)@hyp-db/postgres
+          value: postgresql://postgres:$(POSTGRES_PASSWORD)@hyp-db/postgres
         - name: ELASTICSEARCH_URL
           value: http://hyp-es:9200
-        - name: NEW_RELIC_LICENSE_KEY
-          valueFrom:
-            secretKeyRef:
-              name: hyp-secrets
-              key: new_relic_license_key
-        - name: SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: hyp-secrets
-              key: secret_key
       volumes:
       - name: nginx
         claimName: nginx
