@@ -85,7 +85,8 @@ spec:
           value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xmx200m -Xms200m
       volumes:
       - name: hyp-es
-        claimName: hyp-es
+        persistentVolumeClaim:
+          claimName: hyp-es
 ---
 apiVersion: v1
 kind: Service
