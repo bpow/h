@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
       - name: hyp-es
-        image: image-registry.openshift-image-registry.svc:5000/bcpowell/elastic-icu:6.2.4
+        image: image-registry.openshift-image-registry.svc:5000/dept-clingen-scale/elastic-icu:6.2.4
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
           name: hyp-es
