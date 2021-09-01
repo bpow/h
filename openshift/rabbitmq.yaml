@@ -21,7 +21,7 @@ spec:
           requests:
             memory: 256Mi
           limits:
-            memory: 512Mi
+            memory: 384Mi
         env:
         - name: RABBITMQ_DEFAULT_USER
           value: rabbit
@@ -33,10 +33,12 @@ spec:
         livenessProbe:
           exec:
             command:
-            - rabbitmqctl
-            - node_health_check
+            - rabbitmq-diagnostics
+            - "-q"
+            - ping
           initialDelaySeconds: 60
           periodSeconds: 120
+          timeoutSeconds: 20
         ports:
         - containerPort: 5672
           name: data
