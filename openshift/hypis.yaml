@@ -104,6 +104,10 @@ data:
     [formatter_generic]
     format = %(asctime)s [%(process)d] [%(name)s:%(levelname)s] %(message)s
 
+  alembic.ini: |
+    [alembic]
+    # path to migration scripts
+    script_location = h:migrations
 
 ---
 apiVersion: apps/v1
@@ -184,7 +188,7 @@ spec:
           requests:
             memory: 512Mi
           limits:
-            memory: 1Gi
+            memory: 768Mi
         command:
         - bin/hypothesis
         args:
