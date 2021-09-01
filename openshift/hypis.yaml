@@ -11,8 +11,6 @@ data:
 
     [app:h]
     use: call:h.app:create_app
-    mail.host = relay.unc.edu
-    mail.port = 25
     mail.queue_path = /tmp/mailqueue
     mail.debug = 1
 
