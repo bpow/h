@@ -215,3 +215,18 @@ spec:
       - name: hypis-conf
         configMap:
           name: hypis-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hypis
+spec:
+  selector:
+    app: hypis
+  ports:
+    - protocol: TCP
+      port: 5000
+      name: http
+    - protocol: TCP
+      port: 5001
+      name: websockets
