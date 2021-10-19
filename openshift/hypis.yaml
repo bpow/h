@@ -31,8 +31,6 @@ spec:
         - secretRef:
             name: hyp-secrets
         env:
-        - name: APP_URL
-          value: http://localhost:5000
         - name: AUTHORITY
           value: localhost
         - name: BROKER_URL
@@ -63,8 +61,6 @@ spec:
         - secretRef:
             name: hyp-secrets
         env:
-        - name: APP_URL
-          value: http://localhost:5000
         - name: AUTHORITY
           value: localhost
         - name: BROKER_URL
@@ -78,9 +74,9 @@ spec:
         image: hypothesis/hypothesis:latest
         resources:
           requests:
-            memory: 512Mi
+            memory: 256Mi
           limits:
-            memory: 768Mi
+            memory: 384Mi
         command:
         - bin/hypothesis
         args:
@@ -94,8 +90,6 @@ spec:
         - secretRef:
             name: hyp-secrets
         env:
-        - name: APP_URL
-          value: http://localhost:5000
         - name: AUTHORITY
           value: localhost
         - name: BROKER_URL
