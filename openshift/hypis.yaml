@@ -18,12 +18,19 @@ spec:
 
       - name: hypis-web
         image: hypothesis/hypothesis:latest
+        resources:
+          requests:
+            memory: 96Mi
+          limits:
+            memory: 128Mi
         command:
         - gunicorn
         args:
         - --paste=conf/app.ini
         - --bind=:5000
         - --name=web
+        - --access-logformat='%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" "%({x-forwarded-for}i)s"'
+        - --access-logfile=-
         ports:
         - containerPort: 5000
           name: http
@@ -32,16 +39,23 @@ spec:
             name: hyp-secrets
         env:
         - name: AUTHORITY
-          value: localhost
+          value: clingen-scale
         - name: BROKER_URL
           value: amqp://rabbit:$(RABBITMQ_DEFAULT_PASS)@hyp-mq:$(HYP_MQ_SERVICE_PORT)/
         - name: DATABASE_URL
           value: postgresql://postgres:$(POSTGRES_PASSWORD)@hyp-db/postgres
         - name: ELASTICSEARCH_URL
           value: http://hyp-es:9200
+        - name: PROXY_AUTH
+          value: 'True'
 
       - name: hypis-ws
         image: hypothesis/hypothesis:latest
+        resources:
+          requests:
+            memory: 96Mi
+          limits:
+            memory: 128Mi
         command:
         - gunicorn
         args:
@@ -62,21 +76,23 @@ spec:
             name: hyp-secrets
         env:
         - name: AUTHORITY
-          value: localhost
+          value: clingen-scale
         - name: BROKER_URL
           value: amqp://rabbit:$(RABBITMQ_DEFAULT_PASS)@hyp-mq:$(HYP_MQ_SERVICE_PORT)/
         - name: DATABASE_URL
           value: postgresql://postgres:$(POSTGRES_PASSWORD)@hyp-db/postgres
         - name: ELASTICSEARCH_URL
           value: http://hyp-es:9200
+        - name: PROXY_AUTH
+          value: 'True'
 
       - name: hypis-worker
         image: hypothesis/hypothesis:latest
         resources:
           requests:
-            memory: 256Mi
-          limits:
             memory: 384Mi
+          limits:
+            memory: 512Mi
         command:
         - bin/hypothesis
         args:
@@ -91,7 +107,7 @@ spec:
             name: hyp-secrets
         env:
         - name: AUTHORITY
-          value: localhost
+          value: clingen-scale
         - name: BROKER_URL
           value: amqp://rabbit:$(RABBITMQ_DEFAULT_PASS)@hyp-mq:$(HYP_MQ_SERVICE_PORT)/
         - name: DATABASE_URL

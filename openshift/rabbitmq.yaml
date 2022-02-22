@@ -19,9 +19,9 @@ spec:
         image: rabbitmq:3.8.16-management-alpine
         resources:
           requests:
-            memory: 256Mi
+            memory: 128Mi
           limits:
-            memory: 384Mi
+            memory: 200Mi
         env:
         - name: RABBITMQ_DEFAULT_USER
           value: rabbit
